@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Vazirmatn", sans-serif;
+  --font-vazir: "Vazirmatn", sans-serif;
+  
+  --color-brand-clay: #C5A059;
+  --color-brand-clay-dark: #9E7D3F;
+  --color-brand-clay-light: #141416;
+  --color-brand-sand: #0A0A0B;
+  --color-brand-gold: #C5A059;
+  --color-gold-metal: #C5A059;
+  --color-desert-dusk: #0F0F11;
+}
+
+/* Base scrollbar styling for extra premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0A0B;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C5A059;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9E7D3F;
+}
+
+/* Custom fade transitions and typography details */
+.rtl-grid {
+  direction: rtl;
+}
+
+.ltr-grid {
+  direction: ltr;
+}
+
+.font-vazir {
+  font-family: 'Vazirmatn', sans-serif;
+}
+
+.font-display {
+  font-family: 'Space Grotesk', 'Vazirmatn', sans-serif;
+}
