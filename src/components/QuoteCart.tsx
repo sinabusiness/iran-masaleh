@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PRODUCTS, TRANSLATIONS } from '../data';
 import { Trash2, Plus, Minus, FileText, CheckCircle, Smartphone, Truck, ShieldAlert, Navigation, Clock, Printer, X } from 'lucide-react';
-import { QuoteInquiry } from '../types';
+import { MaterialProduct, QuoteInquiry } from '../types';
 
 interface QuoteCartProps {
   lang: 'fa' | 'en';
@@ -10,6 +10,7 @@ interface QuoteCartProps {
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   onClose: () => void;
+  products?: MaterialProduct[];
 }
 
 export default function QuoteCart({
@@ -19,6 +20,7 @@ export default function QuoteCart({
   removeFromCart,
   clearCart,
   onClose,
+  products,
 }: QuoteCartProps) {
   const t = TRANSLATIONS[lang];
   const isRtl = lang === 'fa';
@@ -34,8 +36,9 @@ export default function QuoteCart({
   const [phoneError, setPhoneError] = useState('');
 
   // Sourced materials retrieval
+  const lookupProducts = products || PRODUCTS;
   const fullCartDetails = cartItems.map((item) => {
-    const product = PRODUCTS.find((p) => p.id === item.productId);
+    const product = lookupProducts.find((p) => p.id === item.productId);
     return {
       item,
       product,
@@ -130,7 +133,7 @@ export default function QuoteCart({
                 `Payload: ${receipt.totalWeightTons.toFixed(1)} Tons%0A` +
                 `Please calculate regional flatbed shipping rates for me.`;
     }
-    return `https://wa.me/989133510000?text=${message}`; // Yazd corporate phone placeholder number prefix
+    return `https://wa.me/989131595717?text=${message}`; // Yazd corporate phone prefix
   };
 
   return (
@@ -305,7 +308,7 @@ export default function QuoteCart({
                         required
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
-                        placeholder={isRtl ? "مثال: 09133512345" : "e.g. 09133512345"}
+                        placeholder={isRtl ? "مثال: 09131595717" : "e.g. 09131595717"}
                         className="w-full bg-black/45 px-4.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:ring-1 focus:ring-[#C5A039] focus:border-[#C5A059] text-xs text-white font-mono"
                       />
                       {phoneError && <span className="text-[10px] text-red-400 font-bold block mt-1">{phoneError}</span>}

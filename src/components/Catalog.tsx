@@ -6,9 +6,10 @@ import { Filter, Layers, Info, Check, Plus, Minus, Flame, Eye, Truck } from 'luc
 interface CatalogProps {
   lang: 'fa' | 'en';
   addToCart: (productId: string, quantity: number) => void;
+  products?: MaterialProduct[];
 }
 
-export default function Catalog({ lang, addToCart }: CatalogProps) {
+export default function Catalog({ lang, addToCart, products }: CatalogProps) {
   const t = TRANSLATIONS[lang];
   const isRtl = lang === 'fa';
 
@@ -30,9 +31,13 @@ export default function Catalog({ lang, addToCart }: CatalogProps) {
     { id: 'steel', label: t.categorySteel },
   ];
 
+  const allProducts = products || PRODUCTS;
+  // Filter for approved products
+  const approvedProducts = allProducts.filter(p => (p as any).approved !== false);
+
   const filteredProducts = activeCategory === 'all'
-    ? PRODUCTS
-    : PRODUCTS.filter(p => p.category === activeCategory);
+    ? approvedProducts
+    : approvedProducts.filter(p => p.category === activeCategory);
 
   const getQuantity = (id: string) => {
     return quantities[id] || 10; // Default sweet spot starter quantity

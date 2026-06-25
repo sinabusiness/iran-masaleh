@@ -50,7 +50,7 @@ export default function Header({
           <div className="flex items-center gap-4 text-[11px] opacity-95">
             <span className="flex items-center gap-1">
               <PhoneCall className="w-3.5 h-3.5 text-[#C5A059]" />
-              <span className="ltr text-[#C5A059] font-bold">035-37274000</span>
+              <span className="ltr text-[#C5A059] font-bold">00989131595717</span>
             </span>
             <span className="hidden md:flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-zinc-400" />

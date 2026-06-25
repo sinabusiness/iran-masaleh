@@ -84,11 +84,8 @@ export default function Contact({ lang }: ContactProps) {
               <div className={isRtl ? 'text-right' : 'text-left'}>
                 <h4 className="text-[10px] font-semibold text-[#C5A059] uppercase tracking-wider">{t.phoneLabel}</h4>
                 <div className="mt-2 space-y-1">
-                  <a href="tel:+983537274000" className="text-sm font-semibold text-[#C5A059] block hover:underline font-mono">
-                    035-37274000 (۱۰ خط مستقیم)
-                  </a>
-                  <a href="tel:+989133510000" className="text-xs font-medium text-zinc-400 block font-mono font-light">
-                    مدیریت لجستیک جاده‌ای: 09133510000
+                  <a href="tel:00989131595717" className="text-sm font-semibold text-[#C5A059] block hover:underline font-mono">
+                    00989131595717
                   </a>
                 </div>
               </div>
@@ -103,8 +100,8 @@ export default function Contact({ lang }: ContactProps) {
               </div>
               <div>
                 <h4 className="text-[10px] font-semibold text-[#C5A059] uppercase tracking-wider">{t.emailLabel}</h4>
-                <a href="mailto:trade@iranmasaleh.com" className="text-xs font-semibold text-white mt-2 block hover:underline font-mono">
-                  trade@iranmasaleh.com
+                <a href="mailto:info@iranmasaleh.com" className="text-xs font-semibold text-white mt-2 block hover:underline font-mono">
+                  info@iranmasaleh.com
                 </a>
               </div>
             </div>

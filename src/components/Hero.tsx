@@ -1,6 +1,7 @@
 import React from 'react';
 import { TRANSLATIONS } from '../data';
 import { Sparkles, ArrowRight, ArrowLeft, Trophy, CheckCircle, Flame } from 'lucide-react';
+import heroImageSrc from '../assets/images/yazd_hero_concept_1782024641735.jpg';
 
 interface HeroProps {
   lang: 'fa' | 'en';
@@ -11,9 +12,6 @@ interface HeroProps {
 export default function Hero({ lang, onNavigateToCatalog, onNavigateToCalculator }: HeroProps) {
   const t = TRANSLATIONS[lang];
   const isRtl = lang === 'fa';
-
-  // Use the generated image path returned from the generate_image tool
-  const heroImageSrc = "/src/assets/images/yazd_hero_concept_1781972272113.jpg";
 
   return (
     <section id="hero" className="relative overflow-hidden bg-[#0A0A0B] pt-12 pb-20 md:py-28 border-b border-white/5">

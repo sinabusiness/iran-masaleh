@@ -6,13 +6,26 @@ import CalculatorTab from './components/Calculator';
 import Heritage from './components/Heritage';
 import QuoteCart from './components/QuoteCart';
 import Contact from './components/Contact';
-import { TRANSLATIONS } from './data';
+import { TRANSLATIONS, PRODUCTS } from './data';
+import { MaterialProduct } from './types';
 import { ShieldCheck, Truck, Recycle, Award, Sparkles, Star, ChevronUp } from 'lucide-react';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from './lib/firebase';
+import { seedProductsIfEmpty } from './lib/firebaseSeeder';
+import AdminDashboard from './components/AdminDashboard';
 
 export default function App() {
   // Persian is the primary language, so set 'fa' as the first default
   const [lang, setLang] = useState<'fa' | 'en'>('fa');
   
+  // Dynamic products loaded from Firestore
+  const [products, setProducts] = useState<MaterialProduct[]>(PRODUCTS);
+  
+  // Track Admin Portal page views via routing
+  const [isAdminPage, setIsAdminPage] = useState<boolean>(() => {
+    return window.location.pathname === '/admin' || window.location.hash === '#admin';
+  });
+
   // Navigation active anchors tracker
   const [activeSection, setActiveSection] = useState<string>('hero');
   
@@ -28,6 +41,59 @@ export default function App() {
       return [];
     }
   });
+
+  // Seed database and listen to real-time products collection in Firestore
+  useEffect(() => {
+    // Listen for hash and pathname changes to trigger admin panel
+    const handleLocationChange = () => {
+      setIsAdminPage(window.location.pathname === '/admin' || window.location.hash === '#admin');
+    };
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+
+    // Initial Database seed if empty, followed by real-time sync
+    seedProductsIfEmpty().then(() => {
+      const q = collection(db, 'products');
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const fetched: MaterialProduct[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          fetched.push({
+            id: data.id || doc.id,
+            category: data.category,
+            nameFA: data.nameFA,
+            nameEN: data.nameEN,
+            descriptionFA: data.descriptionFA,
+            descriptionEN: data.descriptionEN,
+            unitFA: data.unitFA,
+            unitEN: data.unitEN,
+            pricePerUnitTomans: data.pricePerUnitTomans,
+            densityKGperM3: data.densityKGperM3,
+            packWeightKG: data.packWeightKG,
+            coverageM2PerUnit: data.coverageM2PerUnit,
+            imageUrl: data.imageUrl,
+            featured: data.featured,
+            specifications: data.specifications || [],
+            approved: data.approved !== false
+          } as any);
+        });
+        if (fetched.length > 0) {
+          setProducts(fetched);
+        }
+      }, (err) => {
+        handleFirestoreError(err, OperationType.LIST, 'products');
+      });
+      
+      return () => {
+        unsubscribe();
+      };
+    });
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
+  }, []);
 
   // Sync basket to localStorage
   useEffect(() => {
@@ -118,6 +184,19 @@ export default function App() {
 
   const cartCount = cartItems.reduce((sum, item) => sum + 1, 0);
 
+  if (isAdminPage) {
+    return (
+      <AdminDashboard
+        lang={lang}
+        products={products}
+        onBackToApp={() => {
+          window.location.hash = '';
+          setIsAdminPage(false);
+        }}
+      />
+    );
+  }
+
   return (
     <div className={`min-h-screen bg-[#0A0A0B] text-[#E5E5E5] transition-colors duration-300 selection:bg-[#C5A059] selection:text-black ${
       isRtl ? 'font-vazir' : 'font-sans'
@@ -205,6 +284,7 @@ export default function App() {
       <Catalog
         lang={lang}
         addToCart={handleAddToCart}
+        products={products}
       />
 
       {/* 5. Dynamic Dimensional Calculator */}
@@ -320,14 +400,25 @@ export default function App() {
 
           </div>
 
-          <div className={`flex flex-col sm:flex-row justify-between items-center text-[11px] text-zinc-650 ${
+          <div className={`flex flex-col sm:flex-row justify-between items-center text-[11px] text-zinc-650 gap-4 ${
             isRtl ? 'font-vazir text-right' : 'font-sans text-left'
           }`}>
-            <span>
-              {isRtl 
-                ? '© 2026 ایران مصالح. تمامی حقوق مادی و معنوی محفوظ و متعلق به سامانه توزیع مصالح یزد می‌باشد.' 
-                : '© 2026 Iran Masaleh. All rights reserved. Sourced direct from automated kilns of Yazd, Iran.'}
-            </span>
+            <div className="flex flex-wrap items-center gap-4">
+              <span>
+                {isRtl 
+                  ? '© 2026 ایران مصالح. تمامی حقوق مادی و معنوی محفوظ و متعلق به سامانه توزیع مصالح یزد می‌باشد.' 
+                  : '© 2026 Iran Masaleh. All rights reserved. Sourced direct from automated kilns of Yazd, Iran.'}
+              </span>
+              <button
+                onClick={() => {
+                  window.location.hash = '#admin';
+                  setIsAdminPage(true);
+                }}
+                className="text-[#C5A059] hover:underline font-bold text-[10px] cursor-pointer flex items-center gap-1 border border-[#C5A059]/20 px-2 py-1 rounded bg-[#C5A059]/5 hover:bg-[#C5A059]/10 transition-all"
+              >
+                🔒 {isRtl ? 'پنل مدیریت و خزشگر' : 'Admin Hub & Crawler'}
+              </button>
+            </div>
             <span className="mt-2 sm:mt-0 font-display">
               Designed for iranmasaleh.com | Yazd Hub
             </span>
@@ -344,6 +435,7 @@ export default function App() {
           removeFromCart={handleRemoveFromCart}
           clearCart={handleClearCart}
           onClose={() => setIsCartOpen(false)}
+          products={products}
         />
       )}
 

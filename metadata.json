@@ -1,5 +1,5 @@
 {
-  "name": "Iran Masaleh",
+  "name": "ایران مصالح",
   "description": "Premium Construction Materials marketplace in Yazd, Iran. Multi-lingual catalog, smart calculators, and quotation system for bricks, ceramics, stones, cement, and more.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -1,4 +1,6 @@
 import { MaterialProduct, ProjectCalculatorType } from './types';
+import meybodSilkTravertinePorcelainSrc from './assets/images/meybod_silk_travertine_porcelain_1782024853833.jpg';
+import yazdMicronizedPlasterSrc from './assets/images/yazd_micronized_plaster_1782024872892.jpg';
 
 export const TRANSLATIONS = {
   fa: {
@@ -110,7 +112,7 @@ export const TRANSLATIONS = {
     contactTitle: "دفتر مرکزی و هماهنگی لجستیک یزد",
     contactSubtitle: "سفارش مستقیم و ارتباط بی‌واسطه با کارخانه‌ها و معادن استان یزد",
     addressLabel: "آدرس دفتر و انبار مرکزی:",
-    addressText: "یزد، شهرک صنعتی سیمرغ، بلوار کارگر، تقاطع کاشی‌سازان، مجتمع تجاری ایران مصالح",
+    addressText: "ایران، یزد، صفاییه",
     phoneLabel: "تلفن‌های پشتیبانی زنده و استعلام قیمت لحظه‌ای:",
     emailLabel: "پست الکترونیکی بازرگانی و صادرات:",
     workingHoursLabel: "ساعات کار هماهنگی ترابری:",
@@ -226,7 +228,7 @@ export const TRANSLATIONS = {
     contactTitle: "Yazd Global HQ & Logistics Freight Terminal",
     contactSubtitle: "Direct communication bypassing standard brokers and middle layers",
     addressLabel: "Head Office & Yards Complex Address:",
-    addressText: "Yazd Industrial Zone, Simorgh Blvd, Kargar Avenue, Ceramicists Intersection, Iran Masaleh HQ Complex",
+    addressText: "ایران، یزد، صفاییه",
     phoneLabel: "Trading Desks Support & Direct Shipping Line:",
     emailLabel: "Corporate Trade & Export Bilateral division:",
     workingHoursLabel: "Freight Terminal Gates Working Hours:",
@@ -292,7 +294,7 @@ export const PRODUCTS: MaterialProduct[] = [
     densityKGperM3: 2400,
     packWeightKG: 32, // standard box weight
     coverageM2PerUnit: 1,
-    imageUrl: "https://images.unsplash.com/photo-1615876234886-fd9a39faa97f?auto=format&fit=crop&q=80&w=600",
+    imageUrl: meybodSilkTravertinePorcelainSrc,
     featured: true,
     specifications: [
       { labelFA: "ابعاد تایل", labelEN: "Tile Dimensions", valueFA: "۱۲۰ × ۶۰ سانتی‌متر", valueEN: "120 x 60 cm" },
@@ -371,7 +373,7 @@ export const PRODUCTS: MaterialProduct[] = [
     unitEN: "30KG Bag",
     pricePerUnitTomans: 39000,
     packWeightKG: 30,
-    imageUrl: "https://images.unsplash.com/photo-1560185127-6a2806647f81?auto=format&fit=crop&q=80&w=600",
+    imageUrl: yazdMicronizedPlasterSrc,
     featured: false,
     specifications: [
       { labelFA: "عیار مش پودر", labelEN: "Mesh Grain Size", valueFA: "مش ۲۰۰ میکرونیزه (طرح ابریشم بدون الک)", valueEN: "Mesh size 200 (needs no on-site sieving)" },

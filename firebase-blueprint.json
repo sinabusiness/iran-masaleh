@@ -1,0 +1,99 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "A construction material product from Yazd factories",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the product"
+        },
+        "category": {
+          "type": "string",
+          "description": "Product category (e.g., tiles, stones, traditional, cement)"
+        },
+        "nameFA": {
+          "type": "string",
+          "description": "Persian name of the product"
+        },
+        "nameEN": {
+          "type": "string",
+          "description": "English name of the product"
+        },
+        "descriptionFA": {
+          "type": "string",
+          "description": "Persian description"
+        },
+        "descriptionEN": {
+          "type": "string",
+          "description": "English description"
+        },
+        "unitFA": {
+          "type": "string",
+          "description": "Persian unit of measure"
+        },
+        "unitEN": {
+          "type": "string",
+          "description": "English unit of measure"
+        },
+        "pricePerUnitTomans": {
+          "type": "number",
+          "description": "Price per unit in Tomans"
+        },
+        "densityKGperM3": {
+          "type": "number",
+          "description": "Density in kg/m3"
+        },
+        "packWeightKG": {
+          "type": "number",
+          "description": "Weight of a single pack in kg"
+        },
+        "coverageM2PerUnit": {
+          "type": "number",
+          "description": "Coverage in square meters per unit"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Image URL"
+        },
+        "featured": {
+          "type": "boolean",
+          "description": "Whether the product is featured on the homepage"
+        },
+        "approved": {
+          "type": "boolean",
+          "description": "Whether the product is approved for public catalog display"
+        },
+        "scrapedFrom": {
+          "type": "string",
+          "description": "URL the product was scraped from, if applicable"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of creation"
+        },
+        "specifications": {
+          "type": "array",
+          "description": "Key-value specifications of the material"
+        }
+      },
+      "required": [
+        "id",
+        "category",
+        "nameFA",
+        "nameEN",
+        "pricePerUnitTomans",
+        "unitFA",
+        "unitEN",
+        "imageUrl"
+      ]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Collection of construction materials"
+    }
+  }
+}
