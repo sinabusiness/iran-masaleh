@@ -4,6 +4,7 @@ import Hero from './components/Hero';
 import Catalog from './components/Catalog';
 import CalculatorTab from './components/Calculator';
 import Heritage from './components/Heritage';
+import ArticlesSection from './components/ArticlesSection';
 import QuoteCart from './components/QuoteCart';
 import Contact from './components/Contact';
 import { TRANSLATIONS, PRODUCTS } from './data';
@@ -295,6 +296,11 @@ export default function App() {
 
       {/* 6. Yazd Cultural Geological storytelling */}
       <Heritage
+        lang={lang}
+      />
+
+      {/* 6.5 Yazd Knowledge and SEO Articles Hub */}
+      <ArticlesSection
         lang={lang}
       />
 

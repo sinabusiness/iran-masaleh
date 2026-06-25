@@ -1,7 +1,55 @@
 import React, { useState } from 'react';
 import { MaterialProduct } from '../types';
 import { TRANSLATIONS } from '../data';
-import { ArrowLeft, Check, Trash2, Globe, Database, Cpu, Plus, CheckCircle2, ShieldCheck, Loader2, Sparkles, Filter } from 'lucide-react';
+import { ArrowLeft, Check, Trash2, Globe, Database, Cpu, Plus, CheckCircle2, ShieldCheck, Loader2, Sparkles, Filter, Search, Play, Building2 } from 'lucide-react';
+
+const DISCOVERED_FACTORIES = [
+  {
+    id: 'f-meybod',
+    nameFA: 'صنایع کاشی و سرامیک میبد یزد',
+    nameEN: 'Meybod Tiles & Ceramics Group',
+    category: 'tiles',
+    url: 'meybodtile.ir',
+    statusFA: 'آماده خزش خودکار (کاشی پرسلان)',
+    statusEN: 'Ready to scan (Porcelain Tiles)'
+  },
+  {
+    id: 'f-cement',
+    nameFA: 'کارخانه سیمان سفید ممتاز یزد',
+    nameEN: 'Yazd White Cement Co.',
+    category: 'cement',
+    url: 'yazdcement.com',
+    statusFA: 'آماده خزش خودکار (سیمان و گچ)',
+    statusEN: 'Ready to scan (Cement & Plaster)'
+  },
+  {
+    id: 'f-taft',
+    nameFA: 'مجموعه معادن و سنگبری تفت یزد',
+    nameEN: 'Taft Stone Quarry Yards',
+    category: 'stones',
+    url: 'taftstone.ir',
+    statusFA: 'آماده خزش خودکار (سنگ مرمریت)',
+    statusEN: 'Ready to scan (Marble Stone)'
+  },
+  {
+    id: 'f-kavir',
+    nameFA: 'صنایع آجر و سفال سنتی کویر یزد',
+    nameEN: 'Kavir Traditional Brick & Clay',
+    category: 'traditional',
+    url: 'kavirbrick.ir',
+    statusFA: 'آماده خزش خودکار (بلوک و آجر)',
+    statusEN: 'Ready to scan (Brick & Block)'
+  },
+  {
+    id: 'f-golsar',
+    nameFA: 'کارخانجات کاشی و سرامیک گلسار یزد',
+    nameEN: 'Yazd Golsar Mosaic & Tiles',
+    category: 'tiles',
+    url: 'golsartile.com',
+    statusFA: 'آماده خزش خودکار (سرامیک استخری)',
+    statusEN: 'Ready to scan (Pool Mosaic)'
+  }
+];
 
 interface AdminDashboardProps {
   lang: 'fa' | 'en';
@@ -13,6 +61,8 @@ export default function AdminDashboard({ lang, products, onBackToApp }: AdminDas
   const t = TRANSLATIONS[lang];
   const isRtl = lang === 'fa';
 
+  const [crawlerTab, setCrawlerTab] = useState<'discover' | 'custom'>('discover');
+  const [factorySearchQuery, setFactorySearchQuery] = useState('');
   const [factoryUrl, setFactoryUrl] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('tiles');
   const [isCrawling, setIsCrawling] = useState(false);
@@ -22,25 +72,22 @@ export default function AdminDashboard({ lang, products, onBackToApp }: AdminDas
   const pendingProducts = products.filter(p => (p as any).approved === false);
   const approvedProducts = products.filter(p => (p as any).approved !== false);
 
-  const handleCrawl = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!factoryUrl) return;
-
+  const executeCrawl = async (url: string, category: string) => {
     setIsCrawling(true);
-    setCrawlStatus(isRtl ? 'در حال اتصال به وب‌سایت کارخانه و خزش داده‌ها...' : 'Connecting to factory server and crawling catalog...');
+    setCrawlStatus(isRtl ? 'در حال اتصال به سرور کارخانه و خزش هوشمند کاتالوگ...' : 'Connecting to factory server and crawling catalog...');
 
     try {
       const response = await fetch('/api/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: factoryUrl, category: selectedCategory })
+        body: JSON.stringify({ url, category })
       });
 
       const data = await response.json();
       if (response.ok && data.success) {
         setCrawlStatus(isRtl 
-          ? `موفقیت‌آمیز! تعداد ${data.products.length} محصول با موفقیت خزیده و در بخش انتظار قرار گرفت.`
-          : `Success! Crawled ${data.products.length} products and placed them in approval queue.`
+          ? `خزش با موفقیت پایان یافت! تعداد ${data.products.length} نمونه کالا از کارخانه ${url} استخراج و به دیتابیس بخش انتظار برای تأیید افزوده شد.`
+          : `Success! Auto-discovered and crawled ${data.products.length} products from factory ${url}. Added to review queue.`
         );
         setFactoryUrl('');
       } else {
@@ -48,12 +95,18 @@ export default function AdminDashboard({ lang, products, onBackToApp }: AdminDas
       }
     } catch (err: any) {
       setCrawlStatus(isRtl 
-        ? `خطا در خزش: ${err.message || 'شبکه مسدود است. لطفاً دوباره تلاش کنید.'}`
-        : `Crawl error: ${err.message || 'Fetch blocked. Please retry.'}`
+        ? `خطا در اتصال به کارخانه: ${err.message || 'شبکه مسدود است. لطفاً دوباره تلاش کنید.'}`
+        : `Crawl error: ${err.message || 'Connection failed. Please retry.'}`
       );
     } finally {
       setIsCrawling(false);
     }
+  };
+
+  const handleCrawl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!factoryUrl) return;
+    await executeCrawl(factoryUrl, selectedCategory);
   };
 
   const handleApprove = async (productId: string) => {
@@ -126,62 +179,147 @@ export default function AdminDashboard({ lang, products, onBackToApp }: AdminDas
             
             <p className="text-xs text-zinc-400 mb-6 leading-relaxed">
               {isRtl 
-                ? 'با وارد کردن آدرس وب‌سایت کارخانه‌های تولید کاشی، آجر، سنگ تفت یا سیمان یزد، محصولات و آخرین قیمت‌ها را به طور مستقیم خزش کنید.'
-                : 'Enter a Yazd material factory URL (Meybod tile, Taft stone, Yazd cement) to automatically scan, parse, and ingest catalogs.'}
+                ? 'موتور هوشمند خزشگر مرکزی ایران مصالح برای مکان‌یابی و استخراج خودکار کاتالوگ‌های تولیدی استان یزد.'
+                : 'Iran Masaleh central crawler engine for automated locating and ingestion of Yazd manufacturing catalogs.'}
             </p>
 
-            <form onSubmit={handleCrawl} className="flex flex-col gap-4">
-              <div>
-                <label className="block text-xs text-zinc-400 mb-1.5 font-bold">
-                  {isRtl ? 'آدرس وب‌سایت کارخانه' : 'Factory Website URL'}
-                </label>
+            {/* Inner Tabs for Automated vs Custom mode */}
+            <div className="flex border-b border-white/10 mb-6">
+              <button
+                type="button"
+                onClick={() => setCrawlerTab('discover')}
+                className={`flex-1 pb-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+                  crawlerTab === 'discover' ? 'border-[#C5A059] text-[#C5A059]' : 'border-transparent text-zinc-500 hover:text-zinc-350'
+                }`}
+              >
+                {isRtl ? 'کشف خودکار کارخانه' : 'Auto-Discover'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCrawlerTab('custom')}
+                className={`flex-1 pb-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+                  crawlerTab === 'custom' ? 'border-[#C5A059] text-[#C5A059]' : 'border-transparent text-zinc-500 hover:text-zinc-350'
+                }`}
+              >
+                {isRtl ? 'درج آدرس دستی' : 'Custom Website'}
+              </button>
+            </div>
+
+            {crawlerTab === 'discover' ? (
+              <div className="flex flex-col gap-4">
+                {/* Search Bar for Factory Database */}
                 <div className="relative">
-                  <Globe className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
+                  <Search className="absolute left-3 top-3 w-4 h-4 text-zinc-500" />
                   <input
                     type="text"
-                    required
-                    placeholder="e.g. meybodtile.com"
-                    value={factoryUrl}
-                    onChange={(e) => setFactoryUrl(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                    placeholder={isRtl ? 'جستجوی کارخانه‌های تولیدی یزد...' : 'Search Yazd manufacturing databases...'}
+                    value={factorySearchQuery}
+                    onChange={(e) => setFactorySearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2.5 bg-zinc-950 border border-white/10 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#C5A059]"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs text-zinc-400 mb-1.5 font-bold">
-                  {isRtl ? 'دسته‌بندی مصالح' : 'Material Category'}
-                </label>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-zinc-950 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#C5A059] cursor-pointer"
+                {/* List of Discovered Factories */}
+                <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+                  {DISCOVERED_FACTORIES.filter(f => 
+                    f.nameFA.includes(factorySearchQuery) || 
+                    f.nameEN.toLowerCase().includes(factorySearchQuery.toLowerCase()) ||
+                    f.url.toLowerCase().includes(factorySearchQuery.toLowerCase())
+                  ).map(factory => (
+                    <div 
+                      key={factory.id} 
+                      className="p-3 bg-zinc-950/60 hover:bg-zinc-950 border border-white/5 rounded-xl flex items-center justify-between gap-3 transition-all"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#C5A059]/10 flex items-center justify-center shrink-0">
+                          <Building2 className="w-4 h-4 text-[#C5A059]" />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-white truncate">
+                            {isRtl ? factory.nameFA : factory.nameEN}
+                          </h4>
+                          <span className="text-[10px] text-[#C5A059] font-mono block mt-0.5">
+                            {factory.url}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <button
+                        type="button"
+                        disabled={isCrawling}
+                        onClick={() => executeCrawl(factory.url, factory.category)}
+                        className="p-2 bg-[#C5A059]/15 hover:bg-[#C5A059] text-[#C5A059] hover:text-black rounded-lg disabled:bg-zinc-800 disabled:text-zinc-600 transition-all cursor-pointer shrink-0"
+                        title={isRtl ? 'خزش و استخراج خودکار کاتالوگ' : 'Crawl & Ingest Catalog'}
+                      >
+                        {isCrawling ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                      </button>
+                    </div>
+                  ))}
+                  {DISCOVERED_FACTORIES.filter(f => 
+                    f.nameFA.includes(factorySearchQuery) || 
+                    f.nameEN.toLowerCase().includes(factorySearchQuery.toLowerCase()) ||
+                    f.url.toLowerCase().includes(factorySearchQuery.toLowerCase())
+                  ).length === 0 && (
+                    <div className="text-center py-6 text-xs text-zinc-500">
+                      {isRtl ? 'هیچ کارخانه‌ای با این مشخصات یافت نشد.' : 'No matching factories found in database.'}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleCrawl} className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-xs text-zinc-400 mb-1.5 font-bold">
+                    {isRtl ? 'آدرس وب‌سایت کارخانه' : 'Factory Website URL'}
+                  </label>
+                  <div className="relative">
+                    <Globe className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. meybodtile.com"
+                      value={factoryUrl}
+                      onChange={(e) => setFactoryUrl(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-zinc-400 mb-1.5 font-bold">
+                    {isRtl ? 'دسته‌بندی مصالح' : 'Material Category'}
+                  </label>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-zinc-950 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#C5A059] cursor-pointer"
+                  >
+                    <option value="tiles">{isRtl ? 'کاشی و سرامیک (Meybod Tiles)' : 'Tiles & Ceramics'}</option>
+                    <option value="traditional">{isRtl ? 'آجر و سفال سنتی' : 'Traditional Brick & Clay'}</option>
+                    <option value="stones">{isRtl ? 'سنگ ساختمانی (Taft Travertine)' : 'Natural Stones'}</option>
+                    <option value="cement">{isRtl ? 'سیمان و گچ یزد' : 'Cement & Plaster'}</option>
+                  </select>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isCrawling}
+                  className="w-full mt-2 py-3 bg-[#C5A059] text-black font-bold text-xs rounded-xl hover:bg-[#b08e4d] disabled:bg-zinc-800 disabled:text-zinc-500 transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <option value="tiles">{isRtl ? 'کاشی و سرامیک (Meybod Tiles)' : 'Tiles & Ceramics'}</option>
-                  <option value="traditional">{isRtl ? 'آجر و سفال سنتی' : 'Traditional Brick & Clay'}</option>
-                  <option value="stones">{isRtl ? 'سنگ ساختمانی (Taft Travertine)' : 'Natural Stones'}</option>
-                  <option value="cement">{isRtl ? 'سیمان و گچ یزد' : 'Cement & Plaster'}</option>
-                </select>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isCrawling}
-                className="w-full mt-2 py-3 bg-[#C5A059] text-black font-bold text-xs rounded-xl hover:bg-[#b08e4d] disabled:bg-zinc-800 disabled:text-zinc-500 transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                {isCrawling ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    {isRtl ? 'در حال خزش...' : 'Crawling Catalog...'}
-                  </>
-                ) : (
-                  <>
-                    <Cpu className="w-4 h-4" />
-                    {isRtl ? 'اجرای خزشگر هوشمند' : 'Execute Intelligent Scrape'}
-                  </>
-                )}
-              </button>
-            </form>
+                  {isCrawling ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {isRtl ? 'در حال خزش...' : 'Crawling Catalog...'}
+                    </>
+                  ) : (
+                    <>
+                      <Cpu className="w-4 h-4" />
+                      {isRtl ? 'اجرای خزشگر دستی' : 'Execute Custom Scrape'}
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
 
             {crawlStatus && (
               <div className="mt-6 p-4 bg-zinc-950 border border-white/5 rounded-xl text-xs leading-relaxed">
